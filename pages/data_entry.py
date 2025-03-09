@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 from sqlalchemy import create_engine, text
 from snowflake.sqlalchemy import URL
+import time  # Import time module to add a small delay
 
 # ✅ Page Config
 st.set_page_config(page_title="Add New Animal Record", page_icon="📝", layout="wide")
@@ -27,17 +28,13 @@ engine = create_engine(
     )
 )
 
-# ✅ Function to reset all fields safely
-def reset_fields():
-    st.session_state.clear()  # Clears all session state variables
-
 # ✅ Input Form
 with st.form("animal_form"):
-    name = st.text_input("Animal Name", max_chars=50, key="name")
-    species = st.text_input("Species", max_chars=50, key="species")
-    age = st.number_input("Age", min_value=0, step=1, key="age")
-    colour = st.text_input("Colour", max_chars=30, key="colour")
-    description = st.text_area("Description", key="description")
+    name = st.text_input("Animal Name", max_chars=50)
+    species = st.text_input("Species", max_chars=50)
+    age = st.number_input("Age", min_value=0, step=1)
+    colour = st.text_input("Colour", max_chars=30)
+    description = st.text_area("Description")
 
     submit_button = st.form_submit_button("Add Animal")
 
@@ -53,8 +50,10 @@ if submit_button:
             })
             conn.commit()
         st.success("✅ Animal Added Successfully!")
-        
-        # ✅ Reset fields safely using session_state.clear()
-        st.rerun()
+
+        # ✅ Navigate to another page momentarily, then back to refresh form
+        st.switch_page("pages/dashboard.py")  # Switch to the Dashboard page
+        time.sleep(0.5)  # Short delay
+        st.switch_page("pages/data_entry.py")  # Return to Data Entry page
     else:
         st.error("❌ Please fill in all required fields.")
