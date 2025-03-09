@@ -3,7 +3,15 @@ import pandas as pd
 from sqlalchemy import create_engine, text
 from snowflake.sqlalchemy import URL
 
-# ✅ Snowflake Connection Setup
+# ✅ Set up the main page
+st.set_page_config(page_title="Animal Records", page_icon="🐾", layout="wide")
+
+# ✅ Sidebar Navigation
+st.sidebar.title("Navigation")
+st.sidebar.page_link("pets_table.py", label="🐾 Animal Management")
+st.sidebar.page_link("pages/analytics.py", label="📊 Analytics")
+
+# ✅ Snowflake Connection
 SNOWFLAKE_USER = "daveondecks"
 SNOWFLAKE_PASSWORD = "thomas100Amario"
 SNOWFLAKE_ACCOUNT = "npagkyh-jb20462"
@@ -11,7 +19,6 @@ SNOWFLAKE_WAREHOUSE = "COMPUTE_WH"
 SNOWFLAKE_DATABASE = "PETSDB"
 SNOWFLAKE_SCHEMA = "PUBLIC"
 
-# ✅ Use Snowflake's SQLAlchemy URL for compatibility with Streamlit Cloud
 engine = create_engine(
     URL(
         user=SNOWFLAKE_USER,
