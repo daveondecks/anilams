@@ -54,6 +54,6 @@ for index, row in df.iterrows():
     if row["IMAGE"]:
         image_bytes = io.BytesIO(row["IMAGE"])
         image = Image.open(image_bytes)
-        st.image(image, caption=row["NAME"], use_column_width=True)
+        st.image(image, caption=row["NAME"], use_container_width=True)
 
 st.success("✅ Data loaded successfully!")
