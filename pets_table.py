@@ -1,9 +1,9 @@
 import streamlit as st
 import pandas as pd
 from sqlalchemy import create_engine
-import snowflake.connector
+from snowflake.sqlalchemy import URL  # ✅ Import correct Snowflake SQLAlchemy URL
 
-# ✅ Secure Snowflake Connection using SQLAlchemy
+# ✅ Snowflake Connection Setup
 SNOWFLAKE_USER = "daveondecks"
 SNOWFLAKE_PASSWORD = "thomas100Amario"
 SNOWFLAKE_ACCOUNT = "npagkyh-jb20462"
@@ -11,8 +11,17 @@ SNOWFLAKE_WAREHOUSE = "COMPUTE_WH"
 SNOWFLAKE_DATABASE = "PETSDB"
 SNOWFLAKE_SCHEMA = "PUBLIC"
 
-# Create Snowflake SQLAlchemy engine
-engine = create_engine(f'snowflake://{SNOWFLAKE_USER}:{SNOWFLAKE_PASSWORD}@{SNOWFLAKE_ACCOUNT}/{SNOWFLAKE_DATABASE}/{SNOWFLAKE_SCHEMA}?warehouse={SNOWFLAKE_WAREHOUSE}')
+# ✅ Use Snowflake's SQLAlchemy URL for compatibility with Streamlit Cloud
+engine = create_engine(
+    URL(
+        user=SNOWFLAKE_USER,
+        password=SNOWFLAKE_PASSWORD,
+        account=SNOWFLAKE_ACCOUNT,
+        warehouse=SNOWFLAKE_WAREHOUSE,
+        database=SNOWFLAKE_DATABASE,
+        schema=SNOWFLAKE_SCHEMA,
+    )
+)
 
 def fetch_data():
     query = "SELECT * FROM ANIMALS ORDER BY ID;"
@@ -34,10 +43,10 @@ description = st.text_area("Description")
 
 if st.button("Add Animal"):
     with engine.connect() as conn:
-        conn.execute(f"""
+        conn.execute("""
             INSERT INTO ANIMALS (NAME, SPECIES, AGE, COLOUR, DESCRIPTION)
-            VALUES ('{name}', '{species}', {age}, '{colour}', '{description}')
-        """)
+            VALUES (:name, :species, :age, :colour, :description)
+        """, {"name": name, "species": species, "age": age, "colour": colour, "description": description})
         conn.commit()
     st.success("✅ Animal Added Successfully!")
     st.rerun()
@@ -53,12 +62,12 @@ new_description = st.text_area("New Description")
 
 if st.button("Update Animal"):
     with engine.connect() as conn:
-        conn.execute(f"""
+        conn.execute("""
             UPDATE ANIMALS SET 
-            NAME = '{new_name}', SPECIES = '{new_species}', AGE = {new_age}, 
-            COLOUR = '{new_colour}', DESCRIPTION = '{new_description}'
-            WHERE ID = {update_id}
-        """)
+            NAME = :new_name, SPECIES = :new_species, AGE = :new_age, 
+            COLOUR = :new_colour, DESCRIPTION = :new_description
+            WHERE ID = :update_id
+        """, {"new_name": new_name, "new_species": new_species, "new_age": new_age, "new_colour": new_colour, "new_description": new_description, "update_id": update_id})
         conn.commit()
     st.success(f"✅ Animal ID {update_id} Updated!")
     st.rerun()
@@ -68,7 +77,7 @@ st.subheader("❌ Delete Animal")
 delete_id = st.number_input("Enter ID to Delete", min_value=1, step=1)
 if st.button("Delete Animal"):
     with engine.connect() as conn:
-        conn.execute(f"DELETE FROM ANIMALS WHERE ID = {delete_id}")
+        conn.execute("DELETE FROM ANIMALS WHERE ID = :delete_id", {"delete_id": delete_id})
         conn.commit()
     st.warning(f"⚠️ Animal ID {delete_id} Deleted!")
     st.rerun()
