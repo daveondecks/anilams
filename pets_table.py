@@ -3,17 +3,17 @@ import pandas as pd
 import snowflake.connector
 
 # ✅ Load Snowflake credentials securely from Streamlit Secrets
-snowflake_secrets = st.secrets.secrets.toml["connections.snowflake"]
+# snowflake_secrets = st.secrets["connections.snowflake"]
 
 # ✅ Connect to Snowflake manually
 def get_snowflake_connection():
     return snowflake.connector.connect(
-        user=snowflake_secrets["user"],
-        password=snowflake_secrets["password"],
-        account=snowflake_secrets["account"],
-        warehouse=snowflake_secrets["warehouse"],
-        database=snowflake_secrets["database"],
-        schema=snowflake_secrets["schema"]
+        user="daveondecks",
+        password="thomas100Amario",
+        account="npagkyh-jb20462",
+        warehouse="COMPUTE_WH",
+        database="PETSDB",
+        schema="PUBLIC"
     )
 
 # ✅ Function to Fetch Data from Snowflake
