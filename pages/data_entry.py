@@ -27,30 +27,15 @@ engine = create_engine(
     )
 )
 
-# ✅ Ensure all session state keys exist before using them
-for key, default_value in {
-    "name": "",
-    "species": "",
-    "age": 0,
-    "colour": "",
-    "description": ""
-}.items():
-    if key not in st.session_state:
-        st.session_state[key] = default_value
-
-# ✅ Function to reset fields after submission
+# ✅ Function to reset all fields safely
 def reset_fields():
-    st.session_state["name"] = ""
-    st.session_state["species"] = ""
-    st.session_state["age"] = 0
-    st.session_state["colour"] = ""
-    st.session_state["description"] = ""
+    st.session_state.clear()  # Clears all session state variables
 
 # ✅ Input Form
 with st.form("animal_form"):
     name = st.text_input("Animal Name", max_chars=50, key="name")
     species = st.text_input("Species", max_chars=50, key="species")
-    age = st.number_input("Age", min_value=0, step=1, key="age")  # Ensure a valid number
+    age = st.number_input("Age", min_value=0, step=1, key="age")
     colour = st.text_input("Colour", max_chars=30, key="colour")
     description = st.text_area("Description", key="description")
 
@@ -68,6 +53,8 @@ if submit_button:
             })
             conn.commit()
         st.success("✅ Animal Added Successfully!")
-        reset_fields()
+        
+        # ✅ Reset fields safely using session_state.clear()
+        st.experimental_rerun()
     else:
         st.error("❌ Please fill in all required fields.")
