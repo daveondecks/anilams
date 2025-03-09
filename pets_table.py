@@ -3,7 +3,7 @@ import pandas as pd
 import snowflake.connector
 
 # ✅ Load Snowflake credentials securely from Streamlit Secrets
-snowflake_secrets = st.secrets["connections.snowflake"]
+snowflake_secrets = st.secrets.secrets.toml["connections.snowflake"]
 
 # ✅ Connect to Snowflake manually
 def get_snowflake_connection():
