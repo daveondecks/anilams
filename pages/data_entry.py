@@ -28,12 +28,19 @@ engine = create_engine(
 )
 
 # ✅ Input Form
+def reset_fields():
+    st.session_state["name"] = ""
+    st.session_state["species"] = ""
+    st.session_state["age"] = 0
+    st.session_state["colour"] = ""
+    st.session_state["description"] = ""
+
 with st.form("animal_form"):
-    name = st.text_input("Animal Name", max_chars=50)
-    species = st.text_input("Species", max_chars=50)
-    age = st.number_input("Age", min_value=0, step=1)
-    colour = st.text_input("Colour", max_chars=30)
-    description = st.text_area("Description")
+    name = st.text_input("Animal Name", max_chars=50, key="name")
+    species = st.text_input("Species", max_chars=50, key="species")
+    age = st.number_input("Age", min_value=0, step=1, key="age")
+    colour = st.text_input("Colour", max_chars=30, key="colour")
+    description = st.text_area("Description", key="description")
     submit_button = st.form_submit_button("Add Animal")
 
     if submit_button:
@@ -47,6 +54,6 @@ with st.form("animal_form"):
                 })
                 conn.commit()
             st.success("✅ Animal Added Successfully!")
-            st.rerun()
+            reset_fields()
         else:
             st.error("❌ Please fill in all required fields.")
