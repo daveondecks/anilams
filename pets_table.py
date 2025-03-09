@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
-from sqlalchemy import create_engine
-from snowflake.sqlalchemy import URL  # ✅ Import correct Snowflake SQLAlchemy URL
+from sqlalchemy import create_engine, text
+from snowflake.sqlalchemy import URL
 
 # ✅ Snowflake Connection Setup
 SNOWFLAKE_USER = "daveondecks"
@@ -41,8 +41,6 @@ age = st.number_input("Age", min_value=0, step=1)
 colour = st.text_input("Colour")
 description = st.text_area("Description")
 
-from sqlalchemy import text
-
 if st.button("Add Animal"):
     with engine.connect() as conn:
         conn.execute(text("""
@@ -51,7 +49,6 @@ if st.button("Add Animal"):
         """), {"name": name, "species": species, "age": age, "colour": colour, "description": description})
         
         conn.commit()
-
     st.success("✅ Animal Added Successfully!")
     st.rerun()
 
@@ -66,12 +63,20 @@ new_description = st.text_area("New Description")
 
 if st.button("Update Animal"):
     with engine.connect() as conn:
-        conn.execute("""
-            UPDATE ANIMALS SET 
-            NAME = :new_name, SPECIES = :new_species, AGE = :new_age, 
-            COLOUR = :new_colour, DESCRIPTION = :new_description
+        conn.execute(text("""
+            UPDATE ANIMALS 
+            SET NAME = :new_name, SPECIES = :new_species, AGE = :new_age, 
+                COLOUR = :new_colour, DESCRIPTION = :new_description
             WHERE ID = :update_id
-        """, {"new_name": new_name, "new_species": new_species, "new_age": new_age, "new_colour": new_colour, "new_description": new_description, "update_id": update_id})
+        """), {
+            "new_name": new_name, 
+            "new_species": new_species, 
+            "new_age": new_age, 
+            "new_colour": new_colour, 
+            "new_description": new_description, 
+            "update_id": update_id
+        })
+        
         conn.commit()
     st.success(f"✅ Animal ID {update_id} Updated!")
     st.rerun()
@@ -81,7 +86,7 @@ st.subheader("❌ Delete Animal")
 delete_id = st.number_input("Enter ID to Delete", min_value=1, step=1)
 if st.button("Delete Animal"):
     with engine.connect() as conn:
-        conn.execute("DELETE FROM ANIMALS WHERE ID = :delete_id", {"delete_id": delete_id})
+        conn.execute(text("DELETE FROM ANIMALS WHERE ID = :delete_id"), {"delete_id": delete_id})
         conn.commit()
     st.warning(f"⚠️ Animal ID {delete_id} Deleted!")
     st.rerun()
