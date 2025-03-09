@@ -27,11 +27,15 @@ engine = create_engine(
     )
 )
 
+# ✅ Initialize session state before using it
+for key in ["name", "species", "age", "colour", "description"]:
+    if key not in st.session_state:
+        st.session_state[key] = ""
+
 # ✅ Function to reset fields
 def reset_fields():
     for key in ["name", "species", "age", "colour", "description"]:
-        if key in st.session_state:  
-            st.session_state[key] = ""
+        st.session_state[key] = ""
 
 # ✅ Input Form
 with st.form("animal_form"):
