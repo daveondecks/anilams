@@ -11,6 +11,8 @@ st.sidebar.title("Navigation")
 st.sidebar.page_link("pets_table.py", label="🐾 Animal Management")
 st.sidebar.page_link("pages/analytics.py", label="📊 Analytics")
 st.sidebar.page_link("pages/trends.py", label="📈 Animal Trends")
+st.sidebar.page_link("pages/export.py", label="📂 Export Data")
+st.sidebar.page_link("pages/dashboard.py", label="📊 Records Dashboard")
 
 # ✅ Snowflake Connection
 SNOWFLAKE_USER = "daveondecks"
