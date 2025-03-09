@@ -41,13 +41,17 @@ age = st.number_input("Age", min_value=0, step=1)
 colour = st.text_input("Colour")
 description = st.text_area("Description")
 
+from sqlalchemy import text
+
 if st.button("Add Animal"):
     with engine.connect() as conn:
-        conn.execute("""
+        conn.execute(text("""
             INSERT INTO ANIMALS (NAME, SPECIES, AGE, COLOUR, DESCRIPTION)
             VALUES (:name, :species, :age, :colour, :description)
-        """, {"name": name, "species": species, "age": age, "colour": colour, "description": description})
+        """), {"name": name, "species": species, "age": age, "colour": colour, "description": description})
+        
         conn.commit()
+
     st.success("✅ Animal Added Successfully!")
     st.rerun()
 
