@@ -55,6 +55,6 @@ if submit_button:
         st.success("✅ Animal Added Successfully!")
         
         # ✅ Reset fields safely using session_state.clear()
-        st.experimental_rerun()
+        st.rerun()
     else:
         st.error("❌ Please fill in all required fields.")
