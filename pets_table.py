@@ -13,6 +13,7 @@ st.sidebar.page_link("pages/analytics.py", label="📊 Analytics")
 st.sidebar.page_link("pages/trends.py", label="📈 Animal Trends")
 st.sidebar.page_link("pages/export.py", label="📂 Export Data")
 st.sidebar.page_link("pages/dashboard.py", label="📊 Records Dashboard")
+st.sidebar.page_link("pages/data_entry.py", label="📝 Add Animal Record")
 
 # ✅ Snowflake Connection
 SNOWFLAKE_USER = "daveondecks"
