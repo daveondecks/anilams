@@ -27,36 +27,47 @@ engine = create_engine(
     )
 )
 
-# ✅ Initialize session state before using it
-for key in ["name", "species", "age", "colour", "description"]:
+# ✅ Ensure all session state keys exist before using them
+for key, default_value in {
+    "name": "",
+    "species": "",
+    "age": 0,
+    "colour": "",
+    "description": ""
+}.items():
     if key not in st.session_state:
-        st.session_state[key] = ""
+        st.session_state[key] = default_value
 
-# ✅ Function to reset fields
+# ✅ Function to reset fields after submission
 def reset_fields():
-    for key in ["name", "species", "age", "colour", "description"]:
-        st.session_state[key] = ""
+    st.session_state["name"] = ""
+    st.session_state["species"] = ""
+    st.session_state["age"] = 0
+    st.session_state["colour"] = ""
+    st.session_state["description"] = ""
 
 # ✅ Input Form
 with st.form("animal_form"):
     name = st.text_input("Animal Name", max_chars=50, key="name")
     species = st.text_input("Species", max_chars=50, key="species")
-    age = st.number_input("Age", min_value=0, step=1, key="age")
+    age = st.number_input("Age", min_value=0, step=1, key="age")  # Ensure a valid number
     colour = st.text_input("Colour", max_chars=30, key="colour")
     description = st.text_area("Description", key="description")
+
     submit_button = st.form_submit_button("Add Animal")
 
-    if submit_button:
-        if name and species and colour:
-            with engine.connect() as conn:
-                conn.execute(text("""
-                    INSERT INTO ANIMALS (NAME, SPECIES, AGE, COLOUR, DESCRIPTION)
-                    VALUES (:name, :species, :age, :colour, :description)
-                """), {
-                    "name": name, "species": species, "age": age, "colour": colour, "description": description
-                })
-                conn.commit()
-            st.success("✅ Animal Added Successfully!")
-            reset_fields()
-        else:
-            st.error("❌ Please fill in all required fields.")
+# ✅ Handle Form Submission
+if submit_button:
+    if name and species and colour:
+        with engine.connect() as conn:
+            conn.execute(text("""
+                INSERT INTO ANIMALS (NAME, SPECIES, AGE, COLOUR, DESCRIPTION)
+                VALUES (:name, :species, :age, :colour, :description)
+            """), {
+                "name": name, "species": species, "age": age, "colour": colour, "description": description
+            })
+            conn.commit()
+        st.success("✅ Animal Added Successfully!")
+        reset_fields()
+    else:
+        st.error("❌ Please fill in all required fields.")
