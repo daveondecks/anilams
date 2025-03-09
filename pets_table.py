@@ -1,88 +1,74 @@
 import streamlit as st
 import pandas as pd
+from sqlalchemy import create_engine
 import snowflake.connector
 
-# ✅ Load Snowflake credentials securely from Streamlit Secrets
-# snowflake_secrets = st.secrets["connections.snowflake"]
+# ✅ Secure Snowflake Connection using SQLAlchemy
+SNOWFLAKE_USER = "daveondecks"
+SNOWFLAKE_PASSWORD = "thomas100Amario"
+SNOWFLAKE_ACCOUNT = "npagkyh-jb20462"
+SNOWFLAKE_WAREHOUSE = "COMPUTE_WH"
+SNOWFLAKE_DATABASE = "PETSDB"
+SNOWFLAKE_SCHEMA = "PUBLIC"
 
-# ✅ Connect to Snowflake manually
-def get_snowflake_connection():
-    return snowflake.connector.connect(
-        user="daveondecks",
-        password="thomas100Amario",
-        account="npagkyh-jb20462",
-        warehouse="COMPUTE_WH",
-        database="PETSDB",
-        schema="PUBLIC"
-    )
+# Create Snowflake SQLAlchemy engine
+engine = create_engine(f'snowflake://{SNOWFLAKE_USER}:{SNOWFLAKE_PASSWORD}@{SNOWFLAKE_ACCOUNT}/{SNOWFLAKE_DATABASE}/{SNOWFLAKE_SCHEMA}?warehouse={SNOWFLAKE_WAREHOUSE}')
 
-# ✅ Function to Fetch Data from Snowflake
 def fetch_data():
-    conn = get_snowflake_connection()
-    query = "SELECT * FROM ANIMALS"
-    df = pd.read_sql(query, conn)
-    conn.close()
+    query = "SELECT * FROM ANIMALS ORDER BY ID;"
+    df = pd.read_sql(query, engine)
     return df
 
-# ✅ Function to Update an Existing Row
-def update_row(row_id, name, species, age, colour, description):
-    conn = get_snowflake_connection()
-    update_query = f"""
-    UPDATE ANIMALS 
-    SET NAME = '{name}', SPECIES = '{species}', AGE = {age}, COLOUR = '{colour}', DESCRIPTION = '{description}'
-    WHERE ID = {row_id}
-    """
-    cur = conn.cursor()
-    cur.execute(update_query)
-    conn.commit()
-    conn.close()
-    st.success(f"Updated ID {row_id} successfully!")
-
-# ✅ Function to Add a New Row
-def add_new_animal(name, species, age, colour, description):
-    conn = get_snowflake_connection()
-    insert_query = f"""
-    INSERT INTO ANIMALS (NAME, SPECIES, AGE, COLOUR, DESCRIPTION)
-    VALUES ('{name}', '{species}', {age}, '{colour}', '{description}')
-    """
-    cur = conn.cursor()
-    cur.execute(insert_query)
-    conn.commit()
-    conn.close()
-    st.success("New animal added successfully!")
-
-# 🔹 Fetch Data from Snowflake
-st.title("🐾 Animal Database (Snowflake)")
-
+# ✅ Streamlit UI
 df = fetch_data()
+st.title("🐾 Animal Records Management")
+st.dataframe(df)
 
-# ✅ Search Feature
-search = st.text_input("🔍 Search by Name, Species, or Colour").lower()
-if search:
-    df = df[df.apply(lambda row: search in str(row["NAME"]).lower() or 
-                               search in str(row["SPECIES"]).lower() or 
-                               search in str(row["COLOUR"]).lower(), axis=1)]
+# 🆕 Add New Animal
+st.subheader("➕ Add New Animal")
+name = st.text_input("Animal Name")
+species = st.text_input("Species")
+age = st.number_input("Age", min_value=0, step=1)
+colour = st.text_input("Colour")
+description = st.text_area("Description")
 
-# ✅ Editable Data Table
-st.subheader("📋 Edit Animal Records")
-edited_df = st.data_editor(df, key="editable_table", num_rows="dynamic")
+if st.button("Add Animal"):
+    with engine.connect() as conn:
+        conn.execute(f"""
+            INSERT INTO ANIMALS (NAME, SPECIES, AGE, COLOUR, DESCRIPTION)
+            VALUES ('{name}', '{species}', {age}, '{colour}', '{description}')
+        """)
+        conn.commit()
+    st.success("✅ Animal Added Successfully!")
+    st.rerun()
 
-# ✅ Update Edited Rows
-if st.button("💾 Save Changes"):
-    for i, row in edited_df.iterrows():
-        update_row(row["ID"], row["NAME"], row["SPECIES"], row["AGE"], row["COLOUR"], row["DESCRIPTION"])
-    st.experimental_rerun()
+# ✏️ Update Existing Animal
+st.subheader("✏️ Update Animal")
+update_id = st.number_input("Enter ID to Update", min_value=1, step=1)
+new_name = st.text_input("New Name")
+new_species = st.text_input("New Species")
+new_age = st.number_input("New Age", min_value=0, step=1)
+new_colour = st.text_input("New Colour")
+new_description = st.text_area("New Description")
 
-# ✅ Add New Animal
-st.subheader("➕ Add a New Animal")
-with st.form("new_animal_form"):
-    new_name = st.text_input("Name")
-    new_species = st.text_input("Species")
-    new_age = st.number_input("Age", min_value=0)
-    new_colour = st.text_input("Colour")
-    new_description = st.text_area("Description")
+if st.button("Update Animal"):
+    with engine.connect() as conn:
+        conn.execute(f"""
+            UPDATE ANIMALS SET 
+            NAME = '{new_name}', SPECIES = '{new_species}', AGE = {new_age}, 
+            COLOUR = '{new_colour}', DESCRIPTION = '{new_description}'
+            WHERE ID = {update_id}
+        """)
+        conn.commit()
+    st.success(f"✅ Animal ID {update_id} Updated!")
+    st.rerun()
 
-    submit_button = st.form_submit_button("Add Animal")
-    if submit_button:
-        add_new_animal(new_name, new_species, new_age, new_colour, new_description)
-        st.experimental_rerun()
+# ❌ Delete Animal
+st.subheader("❌ Delete Animal")
+delete_id = st.number_input("Enter ID to Delete", min_value=1, step=1)
+if st.button("Delete Animal"):
+    with engine.connect() as conn:
+        conn.execute(f"DELETE FROM ANIMALS WHERE ID = {delete_id}")
+        conn.commit()
+    st.warning(f"⚠️ Animal ID {delete_id} Deleted!")
+    st.rerun()
