@@ -27,14 +27,13 @@ engine = create_engine(
     )
 )
 
-# ✅ Input Form
+# ✅ Function to reset fields
 def reset_fields():
-    st.session_state["name"] = ""
-    st.session_state["species"] = ""
-    st.session_state["age"] = 0
-    st.session_state["colour"] = ""
-    st.session_state["description"] = ""
+    for key in ["name", "species", "age", "colour", "description"]:
+        if key in st.session_state:  
+            st.session_state[key] = ""
 
+# ✅ Input Form
 with st.form("animal_form"):
     name = st.text_input("Animal Name", max_chars=50, key="name")
     species = st.text_input("Species", max_chars=50, key="species")
