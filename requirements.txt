@@ -3,4 +3,6 @@ snowflake_connector_python==3.13.2
 snowflake_snowpark_python==1.28.0
 snowflake-sqlalchemy==1.7.3
 SQLAlchemy==2.0.38
-streamlit==1.42.2
+streamlit==1.42.
+Plotly
+
