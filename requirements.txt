@@ -5,4 +5,5 @@ snowflake-sqlalchemy==1.7.3
 SQLAlchemy==2.0.38
 streamlit==1.42.
 Plotly
+Pillow
 

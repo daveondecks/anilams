@@ -1,4 +1,11 @@
-# ✅ Add Background First
+import streamlit as st  # ✅ Import Streamlit first
+import pandas as pd
+import io
+from PIL import Image
+from sqlalchemy import create_engine, text
+from snowflake.sqlalchemy import URL
+
+# ✅ Add Background Function (After Imports)
 def add_background():
     st.markdown(
         f"""
@@ -14,15 +21,7 @@ def add_background():
         unsafe_allow_html=True
     )
 
-add_background()  # Call the function immediately
-
-# ✅ Import Streamlit and Other Libraries
-import streamlit as st
-import pandas as pd
-import io
-from PIL import Image
-from sqlalchemy import create_engine, text
-from snowflake.sqlalchemy import URL
+add_background()  # ✅ Now safe to call after imports
 
 # ✅ Page Config
 st.set_page_config(page_title="Animal Records", page_icon="🐾", layout="wide")
