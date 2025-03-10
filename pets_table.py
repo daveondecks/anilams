@@ -84,5 +84,6 @@ for index, row in df.iterrows():
         st.subheader(f"{row['NAME']} ({row['SPECIES']})")
         st.write(f"Age: {row['AGE']} | Colour: {row['COLOUR']}")
         st.write(row["DESCRIPTION"])
+    st.markdown("<hr style='border: 0.5px solid #ccc;'>", unsafe_allow_html=True)  # Thin horizontal line
 
 st.success("✅ Data loaded successfully!")
