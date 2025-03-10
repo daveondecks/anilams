@@ -1,3 +1,22 @@
+# ✅ Add Background First
+def add_background():
+    st.markdown(
+        f"""
+        <style>
+        .stApp {{
+            background-image: url("https://raw.githubusercontent.com/daveondecks/anilams/main/assets/pets_bg.jpg");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }}
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
+
+add_background()  # Call the function immediately
+
+# ✅ Import Streamlit and Other Libraries
 import streamlit as st
 import pandas as pd
 import io
@@ -38,13 +57,13 @@ engine = create_engine(
     )
 )
 
-# ✅ Fetch data including images
+# ✅ Fetch Data Including Images
 query = "SELECT NAME, SPECIES, AGE, COLOUR, DESCRIPTION, IMAGE FROM ANIMALS"
 df = pd.read_sql(query, engine)
 
 df.columns = df.columns.str.upper()  # Ensure column names match Snowflake's uppercase format
 
-# ✅ Display records with image thumbnails
+# ✅ Display Records with Image Thumbnails
 for index, row in df.iterrows():
     col1, col2 = st.columns([1, 3])  # Create layout with two columns
     with col1:
